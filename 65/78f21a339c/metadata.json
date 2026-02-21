@@ -1,0 +1,45 @@
+{
+  "cli_version": "0.4.5",
+  "checkpoint_id": "6578f21a339c",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "README.md",
+    "agents/code-reviewer.md",
+    "biome.json",
+    "bun.lock",
+    "package.json",
+    "skills/commit/SKILL.md",
+    "skills/commit/scripts/analyze-changes.sh",
+    "src/cli.ts",
+    "src/commands/install.ts",
+    "src/commands/list.ts",
+    "src/commands/validate.ts",
+    "src/lib/constants.ts",
+    "src/lib/parser.ts",
+    "src/lib/validator.ts",
+    "src/types.ts",
+    "tests/parser.test.ts",
+    "tests/validator.test.ts",
+    "tsconfig.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/65/78f21a339c/0/metadata.json",
+      "transcript": "/65/78f21a339c/0/full.jsonl",
+      "context": "/65/78f21a339c/0/context.md",
+      "content_hash": "/65/78f21a339c/0/content_hash.txt",
+      "prompt": "/65/78f21a339c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 6191,
+    "cache_read_tokens": 197298,
+    "output_tokens": 738,
+    "api_call_count": 7
+  }
+}
