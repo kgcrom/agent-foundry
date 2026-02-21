@@ -1,12 +1,24 @@
 {
   "name": "agent-foundry",
-  "module": "index.ts",
+  "version": "0.1.0",
+  "description": "Personal Agent Skills + Agents collection following the Agent Skills open standard",
   "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
+  "scripts": {
+    "cli": "bun run src/cli.ts",
+    "validate": "bun run src/cli.ts validate",
+    "list": "bun run src/cli.ts list",
+    "install-skills": "bun run src/cli.ts install",
+    "typecheck": "tsc --noEmit",
+    "check": "biome check .",
+    "format": "biome format --write .",
+    "test": "bun test"
   },
-  "peerDependencies": {
-    "typescript": "^5"
+  "dependencies": {
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "^1.2.4",
+    "typescript": "^5.7.3"
   }
 }
