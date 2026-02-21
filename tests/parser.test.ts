@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { parseAgent, parseFrontmatter, parseSkill } from "../src/lib/parser.js";
 
-describe("parseFrontmatter", () => {
+describe("lib/parser parseFrontmatter", () => {
   test("parses valid YAML frontmatter", () => {
     const content = `---
 name: test-skill
@@ -54,9 +54,19 @@ description: test
     const result = parseFrontmatter<{ name: string; description: string }>(content);
     expect(result.body).toBe("");
   });
+
+  test("throws on invalid YAML syntax", () => {
+    const content = `---
+name: broken
+description: "unterminated
+---
+Body`;
+
+    expect(() => parseFrontmatter(content)).toThrow();
+  });
 });
 
-describe("parseSkill", () => {
+describe("lib/parser parseSkill", () => {
   test("parses a valid skill", () => {
     const content = `---
 name: commit
@@ -80,7 +90,7 @@ Instructions here.`;
   });
 });
 
-describe("parseAgent", () => {
+describe("lib/parser parseAgent", () => {
   test("parses a valid agent with codex config", () => {
     const content = `---
 name: code-reviewer

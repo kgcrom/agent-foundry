@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { validateAgent, validateSkill } from "../src/lib/validator.js";
 import type { AgentFrontmatter, SkillFrontmatter } from "../src/types.js";
 
-describe("validateSkill", () => {
+describe("lib/validator validateSkill", () => {
   const validSkill: SkillFrontmatter = {
     name: "commit",
     description: "Create well-structured git commits",
@@ -75,13 +75,23 @@ describe("validateSkill", () => {
     expect(result.warnings.some((w) => w.includes("license"))).toBe(true);
   });
 
+  test("warns when metadata value is not a string", () => {
+    const result = validateSkill({
+      ...validSkill,
+      metadata: { author: "kgcrom", count: 1 as unknown as string },
+    });
+
+    expect(result.valid).toBe(true);
+    expect(result.warnings.some((w) => w.includes("metadata.count"))).toBe(true);
+  });
+
   test("passes without directory name check", () => {
     const result = validateSkill(validSkill);
     expect(result.valid).toBe(true);
   });
 });
 
-describe("validateAgent", () => {
+describe("lib/validator validateAgent", () => {
   const validAgent: AgentFrontmatter = {
     name: "code-reviewer",
     description: "Reviews code changes",
