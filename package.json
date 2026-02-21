@@ -1,7 +1,7 @@
 {
   "name": "agent-foundry",
   "version": "0.1.0",
-  "description": "Personal Agent Skills + Agents collection following the Agent Skills open standard",
+  "description": "A universal collection of reusable AI skills and agents, authored once and installable across Claude Code, Codex, GitHub Copilot, Gemini, and more — following the Agent Skills open standard.",
   "type": "module",
   "scripts": {
     "cli": "bun run src/cli.ts",

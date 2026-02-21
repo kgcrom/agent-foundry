@@ -1,8 +1,6 @@
 # Agent Foundry
 
-Personal collection of **Agent Skills** and **Agents** following the [Agent Skills open standard](https://agentskills.io/specification).
-
-One source, multi-use — same skills work across Claude Code, Codex, Copilot, and Antigravity.
+A universal repository of reusable **Agent Skills** and **Agents** following the [Agent Skills open standard](https://agentskills.io/specification). Author once, install everywhere — works across Claude Code, Codex, GitHub Copilot, Gemini, and more.
 
 ## Concepts
 
