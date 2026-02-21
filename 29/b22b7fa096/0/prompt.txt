@@ -1,0 +1,226 @@
+방금 커밋도 reset해줘
+
+---
+
+Base directory for this skill: /Volumes/kgcrom-2tb/kgcrom/.claude/skills/commit
+
+## Format
+
+```
+<type>: <short summary in Korean>
+
+<optional body in Korean>
+```
+
+## Core Rules
+
+**Language:**
+- Type prefix in English (feat, fix, refactor, docs, test, chore, perf, style)
+- Summary and body in Korean
+- Use concise verb forms: "추가", "수정", "삭제" (NOT "추가하도록 함", "수정하도록 함")
+
+**Header:**
+- Under 50 characters
+- Lowercase start, no period at end
+- Imperative mood: describe WHAT changed, not HOW
+
+**Body (optional):**
+- One blank line after header
+- Wrap at 72 characters
+- Explain WHY, not WHAT (diff shows what)
+
+## Examples
+
+✅ **Good:**
+```
+feat: JWT 인증 추가
+fix: 타임존 계산 오류 수정
+refactor: 주문 로직 분리
+```
+
+❌ **Bad:**
+```
+feat: JWT 인증을 추가하도록 함    (verbose form)
+파일 업데이트                    (too vague)
+fixed bug                       (past tense, English)
+```
+
+**With body:**
+```
+feat: 체결 확인 크론 작업 구현
+
+장 마감 후 미체결 주문에 대한 자동 체결 확인 추가.
+KST 16:00-17:59 사이 매 분마다 실행.
+
+- 양 증권사에서 일일 주문 조회
+- broker_order_id로 매칭
+- 상태 업데이트: 체결/부분체결/거부
+```
+
+## Git Staging
+
+1. Run `git status` first
+2. Only stage files modified in current session
+3. Ask user if other files are changed
+4. Use `git add <specific-files>` (NOT `git add .` or `-A`)
+
+## Critical Don'ts
+
+❌ NEVER add `Co-Authored-By: Claude` or AI attribution
+❌ NEVER use verbose Korean: "추가하도록 함", "처리하도록 함"
+❌ NEVER use past tense or vague messages
+❌ NEVER use periods at end of header
+
+---
+
+Base directory for this skill: /Volumes/kgcrom-2tb/kgcrom/.claude/skills/commit
+
+## Format
+
+```
+<type>: <short summary in Korean>
+
+<optional body in Korean>
+```
+
+## Core Rules
+
+**Language:**
+- Type prefix in English (feat, fix, refactor, docs, test, chore, perf, style)
+- Summary and body in Korean
+- Use concise verb forms: "추가", "수정", "삭제" (NOT "추가하도록 함", "수정하도록 함")
+
+**Header:**
+- Under 50 characters
+- Lowercase start, no period at end
+- Imperative mood: describe WHAT changed, not HOW
+
+**Body (optional):**
+- One blank line after header
+- Wrap at 72 characters
+- Explain WHY, not WHAT (diff shows what)
+
+## Examples
+
+✅ **Good:**
+```
+feat: JWT 인증 추가
+fix: 타임존 계산 오류 수정
+refactor: 주문 로직 분리
+```
+
+❌ **Bad:**
+```
+feat: JWT 인증을 추가하도록 함    (verbose form)
+파일 업데이트                    (too vague)
+fixed bug                       (past tense, English)
+```
+
+**With body:**
+```
+feat: 체결 확인 크론 작업 구현
+
+장 마감 후 미체결 주문에 대한 자동 체결 확인 추가.
+KST 16:00-17:59 사이 매 분마다 실행.
+
+- 양 증권사에서 일일 주문 조회
+- broker_order_id로 매칭
+- 상태 업데이트: 체결/부분체결/거부
+```
+
+## Git Staging
+
+1. Run `git status` first
+2. Only stage files modified in current session
+3. Ask user if other files are changed
+4. Use `git add <specific-files>` (NOT `git add .` or `-A`)
+
+## Critical Don'ts
+
+❌ NEVER add `Co-Authored-By: Claude` or AI attribution
+❌ NEVER use verbose Korean: "추가하도록 함", "처리하도록 함"
+❌ NEVER use past tense or vague messages
+❌ NEVER use periods at end of header
+
+---
+
+Base directory for this skill: /Volumes/kgcrom-2tb/kgcrom/.claude/skills/commit
+
+## Format
+
+```
+<type>: <short summary in Korean>
+
+<optional body in Korean>
+```
+
+## Core Rules
+
+**Language:**
+- Type prefix in English (feat, fix, refactor, docs, test, chore, perf, style)
+- Summary and body in Korean
+- Use concise verb forms: "추가", "수정", "삭제" (NOT "추가하도록 함", "수정하도록 함")
+
+**Header:**
+- Under 50 characters
+- Lowercase start, no period at end
+- Imperative mood: describe WHAT changed, not HOW
+
+**Body (optional):**
+- One blank line after header
+- Wrap at 72 characters
+- Explain WHY, not WHAT (diff shows what)
+
+## Examples
+
+✅ **Good:**
+```
+feat: JWT 인증 추가
+fix: 타임존 계산 오류 수정
+refactor: 주문 로직 분리
+```
+
+❌ **Bad:**
+```
+feat: JWT 인증을 추가하도록 함    (verbose form)
+파일 업데이트                    (too vague)
+fixed bug                       (past tense, English)
+```
+
+**With body:**
+```
+feat: 체결 확인 크론 작업 구현
+
+장 마감 후 미체결 주문에 대한 자동 체결 확인 추가.
+KST 16:00-17:59 사이 매 분마다 실행.
+
+- 양 증권사에서 일일 주문 조회
+- broker_order_id로 매칭
+- 상태 업데이트: 체결/부분체결/거부
+```
+
+## Git Staging
+
+1. Run `git status` first
+2. Only stage files modified in current session
+3. Ask user if other files are changed
+4. Use `git add <specific-files>` (NOT `git add .` or `-A`)
+
+## Critical Don'ts
+
+❌ NEVER add `Co-Authored-By: Claude` or AI attribution
+❌ NEVER use verbose Korean: "추가하도록 함", "처리하도록 함"
+❌ NEVER use past tense or vague messages
+❌ NEVER use periods at end of header
+
+---
+
+해당 프로젝트의 description을 한글로 적어줘
+
+---
+
+[Request interrupted by user for tool use]
+
+---
+
+아니다 미안. 영어로적어줘
