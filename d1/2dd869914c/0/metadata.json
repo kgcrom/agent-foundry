@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.4.5",
+  "checkpoint_id": "d12dd869914c",
+  "session_id": "cc2cd253-1fe9-4604-b722-0160e405bb55",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-21T14:20:09.824042Z",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "src/commands/list.ts",
+    "tests/list.test.ts"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "2b1cbe4417c7",
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 6060,
+    "cache_read_tokens": 136664,
+    "output_tokens": 771,
+    "api_call_count": 6
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-21T14:20:09.80619Z",
+    "agent_lines": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 0,
+    "agent_percentage": 0
+  },
+  "transcript_path": ".claude/projects/-Volumes-kgcrom-2tb-kgcrom-workspace-agent-foundry/cc2cd253-1fe9-4604-b722-0160e405bb55.jsonl"
+}
