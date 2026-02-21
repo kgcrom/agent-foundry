@@ -65,25 +65,44 @@ describe("commands/list", () => {
     });
   });
 
-  test("truncates long descriptions to 80 characters", async () => {
-    await withTempRepo(async (root) => {
-      await writeSkill(
-        root,
-        "long-skill",
-        {
-          name: "long-skill",
-          description:
-            "This is a very long skill description that should be truncated in list output for readability.",
-        },
-        "# Long Skill",
-      );
+  test("wraps long descriptions to fit terminal width", async () => {
+    const originalColumns = process.stdout.columns;
+    const originalEnvColumns = process.env.COLUMNS;
+    process.stdout.columns = 80;
+    process.env.COLUMNS = "80";
 
-      const result = await runList(root);
-      const line = result.logs.find((entry) => entry.includes("long-skill"));
+    try {
+      await withTempRepo(async (root) => {
+        await writeSkill(
+          root,
+          "long-skill",
+          {
+            name: "long-skill",
+            description:
+              "This is a very long skill description that should be wrapped in list output for readability.",
+          },
+          "# Long Skill",
+        );
 
-      expect(line).toBeDefined();
-      expect(line?.includes("...")).toBe(true);
-    });
+        const result = await runList(root);
+        const lines = result.logs.join("\n").split("\n");
+        const firstLineIndex = lines.findIndex((line) => line.includes("long-skill"));
+
+        expect(firstLineIndex).toBeGreaterThanOrEqual(0);
+        expect(lines[firstLineIndex + 1]?.startsWith(" ".repeat(16))).toBe(true);
+
+        for (const line of lines) {
+          expect(line.length).toBeLessThanOrEqual(80);
+        }
+      });
+    } finally {
+      process.stdout.columns = originalColumns;
+      if (originalEnvColumns === undefined) {
+        delete process.env.COLUMNS;
+      } else {
+        process.env.COLUMNS = originalEnvColumns;
+      }
+    }
   });
 
   test("ignores non-directory entries under skills", async () => {
