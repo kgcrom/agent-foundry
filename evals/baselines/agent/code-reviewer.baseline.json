@@ -1,0 +1,16 @@
+{
+  "target": "agent",
+  "name": "code-reviewer",
+  "version": "1",
+  "overallScore": 1,
+  "caseScores": {
+    "role-adherence": 1,
+    "severity-format": 1,
+    "file-line-references": 1
+  },
+  "generatedAt": "2026-02-21T00:00:00.000Z",
+  "judgeMode": "off",
+  "metadata": {
+    "runner_version": "v1"
+  }
+}

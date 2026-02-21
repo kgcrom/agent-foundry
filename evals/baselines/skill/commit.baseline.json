@@ -1,0 +1,16 @@
+{
+  "target": "skill",
+  "name": "commit",
+  "version": "1",
+  "overallScore": 1,
+  "caseScores": {
+    "workflow-sections": 1,
+    "safety-force-push-guidance": 1,
+    "output-structure": 1
+  },
+  "generatedAt": "2026-02-21T00:00:00.000Z",
+  "judgeMode": "off",
+  "metadata": {
+    "runner_version": "v1"
+  }
+}

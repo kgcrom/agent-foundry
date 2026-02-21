@@ -49,6 +49,21 @@ Install skills and agents to tool-specific locations in your project.
 bun run install-skills --tool <claude-code|codex|copilot|antigravity>
 ```
 
+### eval
+
+Run executable evals for skills/agents and compare against baselines.
+
+```bash
+# Evaluate one target
+bun run eval commit
+
+# Evaluate all targets in evals/manifest.json
+bun run eval --all
+
+# Update baselines for non-failing runs
+bun run eval --all --update-baseline
+```
+
 ## Adding Skills
 
 Create a new directory under `skills/` with a `SKILL.md` file:
@@ -135,6 +150,13 @@ src/              # CLI tooling
   cli.ts
   commands/
   lib/
+
+evals/            # executable eval definitions and baselines
+  manifest.json
+  skills/
+  agents/
+  baselines/
+  reports/
 ```
 
 ## Development

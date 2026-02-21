@@ -1,0 +1,37 @@
+target: agent
+name: code-reviewer
+version: "1"
+cases:
+  - id: role-adherence
+    tags: [quality]
+    assertions:
+      - type: contains
+        target: document
+        value: "Analyze code changes and provide structured, actionable feedback."
+        weight: 1
+      - type: contains
+        target: document
+        value: "### 2. Analyze Each File"
+        weight: 1
+  - id: severity-format
+    tags: [format]
+    assertions:
+      - type: contains
+        target: document
+        value: "🔴 Critical"
+        weight: 1
+      - type: contains
+        target: document
+        value: "🟡 Warning"
+        weight: 1
+      - type: contains
+        target: document
+        value: "🟢 Suggestion"
+        weight: 1
+  - id: file-line-references
+    tags: [workflow]
+    assertions:
+      - type: contains
+        target: document
+        value: "[filename:line]"
+        weight: 1

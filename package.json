@@ -8,6 +8,7 @@
     "validate": "bun run src/cli.ts validate",
     "list": "bun run src/cli.ts list",
     "install-skills": "bun run src/cli.ts install",
+    "eval": "bun run src/cli.ts eval",
     "typecheck": "tsc --noEmit",
     "check": "biome check .",
     "format": "biome format --write .",

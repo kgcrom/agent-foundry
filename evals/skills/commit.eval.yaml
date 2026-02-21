@@ -1,0 +1,42 @@
+target: skill
+name: commit
+version: "1"
+cases:
+  - id: workflow-sections
+    tags: [workflow, quality]
+    assertions:
+      - type: contains
+        target: document
+        value: "## Workflow"
+        weight: 1
+      - type: contains
+        target: document
+        value: "### 1. Analyze Current State"
+        weight: 1
+      - type: contains
+        target: document
+        value: "### 6. Verify"
+        weight: 1
+  - id: safety-force-push-guidance
+    tags: [safety]
+    assertions:
+      - type: regex
+        target: document
+        pattern: "Never\\*\\* force push"
+        flags: "i"
+        weight: 1
+      - type: contains
+        target: document
+        value: "unless explicitly asked"
+        weight: 1
+  - id: output-structure
+    tags: [format]
+    assertions:
+      - type: contains
+        target: document
+        value: "Conventional Commits"
+        weight: 1
+      - type: contains
+        target: document
+        value: "<type>(<optional scope>): <description>"
+        weight: 1
