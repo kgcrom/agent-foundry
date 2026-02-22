@@ -1,0 +1,79 @@
+target: skill
+name: create-pr
+version: "1"
+cases:
+  - id: workflow-sections
+    tags: [workflow, quality]
+    assertions:
+      - type: contains
+        target: document
+        value: "## Workflow"
+        weight: 1
+      - type: contains
+        target: document
+        value: "### 1. Determine Base Branch"
+        weight: 1
+      - type: contains
+        target: document
+        value: "### 7. Create PR and Return URL"
+        weight: 1
+  - id: template-check-and-fallback
+    tags: [workflow, format]
+    assertions:
+      - type: contains
+        target: document
+        value: ".github/PULL_REQUEST_TEMPLATE.md"
+        weight: 1
+      - type: contains
+        target: document
+        value: "If the template file is missing, create it"
+        weight: 1
+      - type: contains
+        target: document
+        value: "## CLI Output (if commands/validation changed)"
+        weight: 1
+  - id: verification-commands
+    tags: [quality]
+    assertions:
+      - type: contains
+        target: document
+        value: "`bun test`"
+        weight: 1
+      - type: contains
+        target: document
+        value: "`bun run check`"
+        weight: 1
+      - type: contains
+        target: document
+        value: "`bun run typecheck`"
+        weight: 1
+  - id: pr-creation-and-url
+    tags: [workflow]
+    assertions:
+      - type: contains
+        target: document
+        value: "`gh pr create --base <base-branch> --title \"<title>\" --body \"<body>\"`"
+        weight: 1
+      - type: contains
+        target: document
+        value: "`gh pr view --json url --jq '.url'`"
+        weight: 1
+      - type: contains
+        target: document
+        value: "PR URL"
+        weight: 1
+  - id: safety-rules
+    tags: [safety]
+    assertions:
+      - type: contains
+        target: document
+        value: "Never use `git push --force` unless explicitly asked by the user."
+        weight: 1
+      - type: contains
+        target: document
+        value: "Confirm there are no unresolved conflicts."
+        weight: 1
+      - type: contains
+        target: document
+        value: "Template sections must not be omitted."
+        weight: 1
