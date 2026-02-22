@@ -1,0 +1,94 @@
+target: skill
+name: create-issue
+version: "1"
+cases:
+  - id: workflow-sections
+    tags: [workflow, quality]
+    assertions:
+      - type: contains
+        target: document
+        value: "## Workflow"
+        weight: 1
+      - type: contains
+        target: document
+        value: "### Step 1. Understand the User's Intent"
+        weight: 1
+      - type: contains
+        target: document
+        value: "### Step 8. Create the Issue"
+        weight: 1
+  - id: codebase-exploration
+    tags: [workflow]
+    assertions:
+      - type: contains
+        target: document
+        value: "### Step 2. Gather Codebase Context"
+        weight: 1
+      - type: contains
+        target: document
+        value: "`Grep` and `Glob`"
+        weight: 1
+      - type: contains
+        target: document
+        value: "`git log --oneline -20`"
+        weight: 1
+  - id: related-issue-search
+    tags: [workflow]
+    assertions:
+      - type: contains
+        target: document
+        value: "### Step 3. Search for Related Issues"
+        weight: 1
+      - type: contains
+        target: document
+        value: "`gh search issues"
+        weight: 1
+      - type: contains
+        target: document
+        value: "`gh issue list"
+        weight: 1
+  - id: issue-creation
+    tags: [workflow]
+    assertions:
+      - type: contains
+        target: document
+        value: "`gh issue create --title \"<title>\" --body \"<body>\" --label \"<label1>,<label2>\"`"
+        weight: 1
+      - type: contains
+        target: document
+        value: "Issue number"
+        weight: 1
+      - type: contains
+        target: document
+        value: "Issue URL"
+        weight: 1
+  - id: safety-rules
+    tags: [safety]
+    assertions:
+      - type: contains
+        target: document
+        value: "## Safety Rules"
+        weight: 1
+      - type: contains
+        target: document
+        value: "Never create an issue without showing the draft to the user first."
+        weight: 1
+      - type: contains
+        target: document
+        value: "Never modify or close existing issues"
+        weight: 1
+  - id: edge-cases
+    tags: [safety]
+    assertions:
+      - type: contains
+        target: document
+        value: "## Edge Cases"
+        weight: 1
+      - type: contains
+        target: document
+        value: "`gh auth status`"
+        weight: 1
+      - type: contains
+        target: document
+        value: "65536 characters"
+        weight: 1

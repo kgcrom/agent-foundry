@@ -1,5 +1,5 @@
 {
   "version": "1",
-  "skills": ["commit", "create-pr"],
+  "skills": ["commit", "create-pr", "create-issue"],
   "agents": ["code-reviewer"]
 }

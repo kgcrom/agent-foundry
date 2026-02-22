@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question / Discussion
+    url: https://github.com/kgcrom/agent-foundry/discussions
+    about: For questions or general discussions, please use GitHub Discussions.
