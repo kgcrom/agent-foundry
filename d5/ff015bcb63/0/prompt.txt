@@ -1,0 +1,148 @@
+Implement the following plan:
+
+# Plan: `create-issue` 스킬 + GitHub 이슈 템플릿 생성
+
+## Context
+
+현재 프로젝트에는 `commit`과 `create-pr` 스킬만 존재하며, GitHub 이슈 생성을 위한 스킬이 없다. 또한 `.github/ISSUE_TEMPLATE/` 디렉토리도 없어서 이슈 템플릿이 미비한 상태다. 이 작업에서는:
+
+1. **GitHub 이슈 템플릿**: `.github/ISSUE_TEMPLATE/`에 YAML form 기반 템플릿 생성 (best practices 적용)
+2. **`create-issue` 스킬**: 코드베이스 탐색 → 관련 이슈 검색 → 질문을 통한 명확화 → 이슈 생성의 가이드 워크플로우
+
+---
+
+## 1. GitHub 이슈 템플릿 생성
+
+Best practices에 따라 `.yml` (YAML form) 형식 사용. 이 프로젝트는 CLI 도구이므로 bug report와 feature request 2개 + config.yml로 구성.
+
+### 파일 목록
+
+| 파일 | 설명 |
+|------|------|
+| `.github/ISSUE_TEMPLATE/config.yml` | 빈 이슈 비활성화, Discussions 링크 |
+| `.github/ISSUE_TEMPLATE/bug-report.yml` | 버그 리포트 폼 |
+| `.github/ISSUE_TEMPLATE/feature-request.yml` | 기능 요청 폼 |
+
+### `config.yml`
+
+```yaml
+blank_issues_enabled: false
+contact_links:
+  - name: Question / Discussion
+    url: https://github.com/kgcrom/agent-foundry/discussions
+    about: For questions or general discussions, please use GitHub Discussions.
+```
+
+### `bug-report.yml` 주요 필드
+
+- name: "Bug Report"
+- labels: `["bug"]`
+- title prefix: `[BUG]`
+- 필드: Version (input, required), Bug Description (textarea, required), Steps to Reproduce (textarea, required), Expected Behavior (textarea, required), Actual Behavior (textarea, required), Environment (textarea, optional), Error Logs (textarea, render: bash, optional)
+- Checklist: 기존 이슈 검색 확인, 최신 버전 테스트 확인
+
+### `feature-request.yml` 주요 필드
+
+- name: "Feature Request"
+- labels: `["enhancement"]`
+- title prefix: `[FEAT]`
+- 필드: Description (textarea, required), Motivation (textarea, required), Proposed Solution (textarea, required), Alternatives Considered (textarea, optional), Additional Context (textarea, optional)
+- Checklist: 기존 이슈 검색 확인
+
+---
+
+## 2. `create-issue` 스킬 생성
+
+### 파일: `skills/create-issue/SKILL.md`
+
+**Frontmatter:**
+
+```yaml
+name: create-issue
+description: >-
+  Use when you need to create a GitHub issue with proper context. Searches
+  the codebase and related issues, asks clarifying questions to refine
+  scope and acceptance criteria, checks for issue templates, and creates
+  a well-structured issue via GitHub CLI.
+license: MIT
+metadata:
+  author: kgcrom
+  version: "0.1.0"
+allowed-tools: >-
+  Bash(gh issue create:*) Bash(gh issue list:*) Bash(gh issue view:*)
+  Bash(gh label list:*) Bash(gh search issues:*)
+  Bash(git log:*) Bash(git diff:*) Bash(git status:*)
+  Read Grep Glob
+```
+
+**워크플로우 (8 단계):**
+
+1. **Understand the User's Intent** — 이슈 카테고리 판별 (bug / feature / task), 모호하면 카테고리별 타겟 질문
+2. **Gather Codebase Context** — `Grep`, `Glob`, `Read`로 관련 코드 탐색, `git log`/`git diff`로 최근 변경사항 확인
+3. **Search for Related Issues** — `gh search issues`, `gh issue list`로 중복/관련 이슈 검색, 중복 발견 시 사용자에게 알림
+4. **Check for Issue Templates** — `.github/ISSUE_TEMPLATE/` 확인, 템플릿 존재 시 사용자에게 선택하게 함
+5. **Discover Available Labels** — `gh label list`로 라벨 조회, 적절한 라벨 제안
+6. **Draft the Issue** — 템플릿 or 기본 구조로 제목/본문 작성, 사용자에게 드래프트 제시
+7. **Refine the Draft** — 사용자 피드백 반영, 승인까지 반복
+8. **Create the Issue** — `gh issue create` 실행, 이슈 번호/제목/URL 출력
+
+**Safety Rules:**
+- 드래프트 미확인 상태에서 이슈 생성 금지
+- 사용자 미승인 라벨 적용 금지
+- 중복 이슈 발견 시 경고
+- 기존 이슈 수정/닫기 금지
+
+**Edge Cases:**
+- `gh` 인증 실패 시 안내
+- 원격 저장소 없을 시 중단
+- 본문 65536자 초과 시 경고
+- 여러 주제 혼합 시 분리 제안
+
+---
+
+## 3. 평가 파일 생성
+
+### 파일: `evals/skills/create-issue.eval.yaml`
+
+`create-pr.eval.yaml` 패턴을 따라 주요 assertion:
+- workflow 섹션 존재 (Step 1, Step 8)
+- 코드베이스 탐색 단계 포함
+- `gh issue create` 명령어 포함
+- Safety Rules / Edge Cases 섹션 존재
+- 관련 이슈 검색 단계 포함
+
+### 파일 수정: `evals/manifest.json`
+
+`skills` 배열에 `"create-issue"` 추가:
+```json
+{ "version": "1", "skills": ["commit", "create-pr", "create-issue"], "agents": ["code-reviewer"] }
+```
+
+---
+
+## 수정 대상 파일 요약
+
+| 작업 | 파일 경로 |
+|------|----------|
+| 신규 | `.github/ISSUE_TEMPLATE/config.yml` |
+| 신규 | `.github/ISSUE_TEMPLATE/bug-report.yml` |
+| 신규 | `.github/ISSUE_TEMPLATE/feature-request.yml` |
+| 신규 | `skills/create-issue/SKILL.md` |
+| 신규 | `evals/skills/create-issue.eval.yaml` |
+| 수정 | `evals/manifest.json` |
+
+---
+
+## 검증 방법
+
+```bash
+bun run validate create-issue   # 스킬 frontmatter 검증
+bun run validate --all           # 전체 검증
+bun run list                     # create-issue 목록 확인
+bun test                         # 기존 테스트 회귀 확인
+bun run check                    # lint/format 확인
+bun run typecheck                # 타입 체크
+```
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Volumes/kgcrom-2tb/kgcrom/.REDACTED.jsonl
