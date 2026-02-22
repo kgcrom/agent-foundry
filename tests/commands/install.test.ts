@@ -18,7 +18,7 @@ import {
 
 describe("commands/install", () => {
   test("installs skills as symlinks for every tool target", async () => {
-    const tools: ToolTarget[] = ["claude-code", "codex", "copilot", "antigravity"];
+    const tools: ToolTarget[] = ["claude-code", "codex", "copilot", "antigravity", "gemini"];
 
     for (const tool of tools) {
       await withTempRepo(async (root) => {
@@ -160,8 +160,8 @@ describe("commands/install", () => {
     });
   });
 
-  test("skips agent installation for copilot and antigravity", async () => {
-    const tools: ToolTarget[] = ["copilot", "antigravity"];
+  test("skips agent installation for copilot, antigravity, and gemini", async () => {
+    const tools: ToolTarget[] = ["copilot", "antigravity", "gemini"];
 
     for (const tool of tools) {
       await withTempRepo(async (root) => {

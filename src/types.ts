@@ -36,7 +36,7 @@ export interface ParsedDocument<T> {
   raw: string;
 }
 
-export type ToolTarget = "claude-code" | "codex" | "copilot" | "antigravity";
+export type ToolTarget = "claude-code" | "codex" | "gemini" | "copilot" | "antigravity";
 
 export type ItemKind = "skill" | "agent";
 

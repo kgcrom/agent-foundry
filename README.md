@@ -46,7 +46,7 @@ bun run validate --all
 Install skills and agents to tool-specific locations in your project.
 
 ```bash
-bun run install-skills --tool <claude-code|codex|copilot|antigravity>
+bun run install-skills --tool <claude-code|codex|gemini|copilot|antigravity>
 ```
 
 ### eval
@@ -125,6 +125,7 @@ The body contains the agent's system prompt in Markdown.
 |------|-------------|
 | Claude Code | `.claude/skills/{name}/` |
 | Codex | `.agents/skills/{name}/` |
+| Gemini | `.agents/skills/{name}/` |
 | Copilot | `.github/skills/{name}/` |
 | Antigravity | `.agent/skills/{name}/` |
 

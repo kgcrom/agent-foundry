@@ -98,7 +98,7 @@ describe("commands/list", () => {
     } finally {
       process.stdout.columns = originalColumns;
       if (originalEnvColumns === undefined) {
-        delete process.env.COLUMNS;
+        process.env.COLUMNS = undefined;
       } else {
         process.env.COLUMNS = originalEnvColumns;
       }
