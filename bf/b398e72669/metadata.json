@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.4.5",
+  "checkpoint_id": "bfb398e72669",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "evals/manifest.json",
+    "evals/skills/create-pr.eval.yaml",
+    "skills/create-pr/SKILL.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/bf/b398e72669/0/metadata.json",
+      "transcript": "/bf/b398e72669/0/full.jsonl",
+      "context": "/bf/b398e72669/0/context.md",
+      "content_hash": "/bf/b398e72669/0/content_hash.txt",
+      "prompt": "/bf/b398e72669/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 4,
+    "cache_creation_tokens": 3851,
+    "cache_read_tokens": 76774,
+    "output_tokens": 28,
+    "api_call_count": 3
+  }
+}
