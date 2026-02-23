@@ -3,7 +3,7 @@ import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { install } from "../../src/commands/install.js";
 import { AGENT_INSTALL_PATHS, SKILL_INSTALL_PATHS } from "../../src/lib/constants.js";
-import type { ToolTarget } from "../../src/types.js";
+import type { InstallSelection, ToolTarget } from "../../src/types.js";
 import { captureConsole } from "../helpers/console-capture.js";
 import {
   createTempRepo,
@@ -17,30 +17,47 @@ import {
 } from "../helpers/fs-fixture.js";
 
 describe("commands/install", () => {
-  test("installs skills as symlinks for every tool target", async () => {
-    const tools: ToolTarget[] = ["claude-code", "codex", "copilot", "antigravity", "gemini"];
+  test("installs skills as symlinks for selected scopes and tools", async () => {
+    const tools: ToolTarget[] = ["claude", "codex", "copilot", "antigravity", "gemini"];
 
-    for (const tool of tools) {
-      await withTempRepo(async (root) => {
-        await writeSkill(
-          root,
-          "commit",
-          { name: "commit", description: "Create commits", license: "MIT" },
-          "# Commit",
-        );
+    await withTempRepo(async (root) => {
+      const home = join(root, ".test-home");
+      await writeSkill(
+        root,
+        "commit",
+        { name: "commit", description: "Create commits", license: "MIT" },
+        "# Commit",
+      );
 
-        await runInstall(root, tool);
+      await runInstall(
+        root,
+        {
+          kinds: ["skill"],
+          scopes: ["project", "user"],
+          tools,
+        },
+        { homeDir: home },
+      );
 
-        const linkPath = join(root, SKILL_INSTALL_PATHS[tool], "commit");
-        expect(await exists(linkPath)).toBe(true);
-        expect(await readlink(linkPath)).toEndWith("/skills/commit");
-      });
-    }
+      for (const tool of tools) {
+        const projectLink = join(root, SKILL_INSTALL_PATHS[tool], "commit");
+        const userLink = join(home, SKILL_INSTALL_PATHS[tool], "commit");
+
+        expect(await exists(projectLink)).toBe(true);
+        expect(await exists(userLink)).toBe(true);
+        expect(await readlink(projectLink)).toEndWith("/skills/commit");
+        expect(await readlink(userLink)).toEndWith("/skills/commit");
+      }
+    });
   });
 
   test("prints skip message when skills directory is missing", async () => {
     await withTempRepo(async (root) => {
-      const result = await runInstall(root, "copilot");
+      const result = await runInstall(root, {
+        kinds: ["skill"],
+        scopes: ["project"],
+        tools: ["copilot"],
+      });
       expect(result.logs.join("\n")).toContain(
         "No skills/ directory found. Skipping skill installation.",
       );
@@ -50,15 +67,20 @@ describe("commands/install", () => {
   test("prints skip message when skills directory is empty", async () => {
     await withTempRepo(async (root) => {
       await mkdir(join(root, "skills"), { recursive: true });
-      const result = await runInstall(root, "copilot");
+      const result = await runInstall(root, {
+        kinds: ["skill"],
+        scopes: ["project"],
+        tools: ["copilot"],
+      });
       expect(result.logs.join("\n")).toContain(
         "No skills/ directory found. Skipping skill installation.",
       );
     });
   });
 
-  test("installs agents as symlinks for claude-code", async () => {
+  test("installs agents as symlinks for claude in project and user scopes", async () => {
     await withTempRepo(async (root) => {
+      const home = join(root, ".test-home");
       await writeAgent(
         root,
         "code-reviewer",
@@ -66,16 +88,28 @@ describe("commands/install", () => {
         "# Reviewer",
       );
 
-      await runInstall(root, "claude-code");
+      await runInstall(
+        root,
+        {
+          kinds: ["agent"],
+          scopes: ["project", "user"],
+          tools: ["claude"],
+        },
+        { homeDir: home },
+      );
 
-      const linkPath = join(root, AGENT_INSTALL_PATHS["claude-code"], "code-reviewer.md");
-      expect(await exists(linkPath)).toBe(true);
-      expect(await readlink(linkPath)).toEndWith("/agents/code-reviewer.md");
+      const projectLinkPath = join(root, AGENT_INSTALL_PATHS.claude, "code-reviewer.md");
+      const userLinkPath = join(home, AGENT_INSTALL_PATHS.claude, "code-reviewer.md");
+      expect(await exists(projectLinkPath)).toBe(true);
+      expect(await exists(userLinkPath)).toBe(true);
+      expect(await readlink(projectLinkPath)).toEndWith("/agents/code-reviewer.md");
+      expect(await readlink(userLinkPath)).toEndWith("/agents/code-reviewer.md");
     });
   });
 
-  test("generates codex TOML files for each agent", async () => {
+  test("generates codex TOML files for each agent in selected scopes", async () => {
     await withTempRepo(async (root) => {
+      const home = join(root, ".test-home");
       await writeAgent(
         root,
         "code-reviewer",
@@ -89,10 +123,20 @@ describe("commands/install", () => {
         "# Planner",
       );
 
-      await runInstall(root, "codex");
+      await runInstall(
+        root,
+        {
+          kinds: ["agent"],
+          scopes: ["project", "user"],
+          tools: ["codex"],
+        },
+        { homeDir: home },
+      );
 
       expect(await exists(join(root, ".codex", "agents", "code-reviewer.toml"))).toBe(true);
       expect(await exists(join(root, ".codex", "agents", "planner.toml"))).toBe(true);
+      expect(await exists(join(home, ".codex", "agents", "code-reviewer.toml"))).toBe(true);
+      expect(await exists(join(home, ".codex", "agents", "planner.toml"))).toBe(true);
     });
   });
 
@@ -114,7 +158,11 @@ describe("commands/install", () => {
         "# Reviewer\n\nPath C:\\work",
       );
 
-      await runInstall(root, "codex");
+      await runInstall(root, {
+        kinds: ["agent"],
+        scopes: ["project"],
+        tools: ["codex"],
+      });
 
       const tomlContent = await readFile(join(root, ".codex", "agents", "code-reviewer.toml"));
 
@@ -128,6 +176,7 @@ describe("commands/install", () => {
 
   test("preserves non-agent sections and replaces existing [agents.*] sections in codex config", async () => {
     await withTempRepo(async (root) => {
+      const home = join(root, ".test-home");
       await writeAgent(
         root,
         "code-reviewer",
@@ -148,8 +197,30 @@ describe("commands/install", () => {
           "",
         ].join("\n"),
       );
+      await writeText(
+        join(home, ".codex", "config.toml"),
+        [
+          'default_model = "o1"',
+          "",
+          "[profiles.fast]",
+          'sandbox_mode = "read-only"',
+          "",
+          "[agents.legacy]",
+          'description = "Legacy agent"',
+          'config_file = "agents/legacy.toml"',
+          "",
+        ].join("\n"),
+      );
 
-      await runInstall(root, "codex");
+      await runInstall(
+        root,
+        {
+          kinds: ["agent"],
+          scopes: ["project", "user"],
+          tools: ["codex"],
+        },
+        { homeDir: home },
+      );
 
       const configContent = await readFile(join(root, ".codex", "config.toml"));
       expect(configContent).toContain('default_model = "o1"');
@@ -157,29 +228,37 @@ describe("commands/install", () => {
       expect(configContent).not.toContain("[agents.legacy]");
       expect(configContent).toContain("[agents.code-reviewer]");
       expect(configContent).toContain('config_file = "agents/code-reviewer.toml"');
+
+      const userConfigContent = await readFile(join(home, ".codex", "config.toml"));
+      expect(userConfigContent).toContain('default_model = "o1"');
+      expect(userConfigContent).toContain("[profiles.fast]");
+      expect(userConfigContent).not.toContain("[agents.legacy]");
+      expect(userConfigContent).toContain("[agents.code-reviewer]");
+      expect(userConfigContent).toContain('config_file = "agents/code-reviewer.toml"');
     });
   });
 
-  test("skips agent installation for copilot, antigravity, and gemini", async () => {
+  test("silently ignores unsupported tools for agent installation", async () => {
     const tools: ToolTarget[] = ["copilot", "antigravity", "gemini"];
 
-    for (const tool of tools) {
-      await withTempRepo(async (root) => {
-        await writeAgent(
-          root,
-          "code-reviewer",
-          { name: "code-reviewer", description: "Reviews code", model: "sonnet" },
-          "# Reviewer",
-        );
+    await withTempRepo(async (root) => {
+      await writeAgent(
+        root,
+        "code-reviewer",
+        { name: "code-reviewer", description: "Reviews code", model: "sonnet" },
+        "# Reviewer",
+      );
 
-        const result = await runInstall(root, tool);
-        const output = result.logs.join("\n");
-
-        expect(output).not.toContain("Agent");
-        expect(await exists(join(root, AGENT_INSTALL_PATHS["claude-code"]))).toBe(false);
-        expect(await exists(join(root, AGENT_INSTALL_PATHS.codex))).toBe(false);
+      const result = await runInstall(root, {
+        kinds: ["agent"],
+        scopes: ["project"],
+        tools,
       });
-    }
+
+      expect(result.logs.join("\n")).toBe("");
+      expect(await exists(join(root, AGENT_INSTALL_PATHS.claude))).toBe(false);
+      expect(await exists(join(root, AGENT_INSTALL_PATHS.codex))).toBe(false);
+    });
   });
 
   test("rejects install for codex when agent markdown cannot be parsed", async () => {
@@ -190,7 +269,13 @@ describe("commands/install", () => {
       try {
         await expect(
           withCwd(root, async () => {
-            await install({ tool: "codex" });
+            await install({
+              selection: {
+                kinds: ["agent"],
+                scopes: ["project"],
+                tools: ["codex"],
+              },
+            });
           }),
         ).rejects.toThrow("No YAML frontmatter found");
       } finally {
@@ -202,12 +287,13 @@ describe("commands/install", () => {
 
 async function runInstall(
   root: string,
-  tool: ToolTarget,
+  selection: InstallSelection,
+  options: { homeDir?: string } = {},
 ): Promise<{ logs: string[]; errors: string[] }> {
   const capture = captureConsole();
   try {
     await withCwd(root, async () => {
-      await install({ tool });
+      await install({ selection, homeDir: options.homeDir });
     });
     return { logs: capture.logs, errors: capture.errors };
   } finally {

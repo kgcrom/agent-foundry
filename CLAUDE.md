@@ -15,7 +15,7 @@ bun run format                       # Auto-format with Biome
 bun run list                         # List all skills and agents
 bun run validate <name>              # Validate a specific skill or agent
 bun run validate --all               # Validate all skills and agents
-bun run install-skills --tool <t>    # Install to tool-specific paths (claude-code|codex|copilot|antigravity)
+bun run install-skills               # Interactive TUI install (kind/scope/tool selection, TTY required)
 ```
 
 ## Architecture

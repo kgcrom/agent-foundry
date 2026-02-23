@@ -36,7 +36,16 @@ export interface ParsedDocument<T> {
   raw: string;
 }
 
-export type ToolTarget = "claude-code" | "codex" | "gemini" | "copilot" | "antigravity";
+export type ToolTarget = "claude" | "codex" | "gemini" | "copilot" | "antigravity";
+
+export type InstallKind = "skill" | "agent";
+export type InstallScope = "project" | "user";
+
+export interface InstallSelection {
+  kinds: InstallKind[];
+  scopes: InstallScope[];
+  tools: ToolTarget[];
+}
 
 export type ItemKind = "skill" | "agent";
 

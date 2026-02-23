@@ -5,20 +5,37 @@ import {
   AGENT_INSTALL_PATHS,
   SKILLS_DIR,
   SKILL_INSTALL_PATHS,
+  resolveInstallBase,
+  resolveScopedInstallPath,
 } from "../lib/constants.js";
 import { parseAgent } from "../lib/parser.js";
-import type { ToolTarget } from "../types.js";
+import type { InstallScope, InstallSelection, ToolTarget } from "../types.js";
 
 interface InstallOptions {
-  tool: ToolTarget;
+  selection: InstallSelection;
+  root?: string;
+  homeDir?: string;
 }
 
 export async function install(opts: InstallOptions): Promise<void> {
-  const root = resolve(".");
-  const { tool } = opts;
+  const root = resolve(opts.root ?? ".");
+  const { selection, homeDir } = opts;
+  const kinds = unique(selection.kinds);
+  const scopes = unique(selection.scopes);
+  const tools = unique(selection.tools);
 
-  await installSkills(root, tool);
-  await installAgents(root, tool);
+  for (const scope of scopes) {
+    for (const tool of tools) {
+      for (const kind of kinds) {
+        if (kind === "skill") {
+          await installSkills(root, scope, tool, homeDir);
+          continue;
+        }
+
+        await installAgents(root, scope, tool, homeDir);
+      }
+    }
+  }
 }
 
 async function listDir(dir: string): Promise<string[]> {
@@ -42,9 +59,14 @@ async function isDirectory(path: string): Promise<boolean> {
   }
 }
 
-async function installSkills(root: string, tool: ToolTarget): Promise<void> {
+async function installSkills(
+  root: string,
+  scope: InstallScope,
+  tool: ToolTarget,
+  homeDir?: string,
+): Promise<void> {
   const skillsDir = join(root, SKILLS_DIR);
-  const targetBase = join(root, SKILL_INSTALL_PATHS[tool]);
+  const targetBase = resolveScopedInstallPath(root, SKILL_INSTALL_PATHS[tool], scope, homeDir);
 
   const entries = await listDir(skillsDir);
   if (entries.length === 0) {
@@ -63,8 +85,14 @@ async function installSkills(root: string, tool: ToolTarget): Promise<void> {
   }
 }
 
-async function installAgents(root: string, tool: ToolTarget): Promise<void> {
-  if (tool !== "claude-code" && tool !== "codex") {
+async function installAgents(
+  root: string,
+  scope: InstallScope,
+  tool: ToolTarget,
+  homeDir?: string,
+): Promise<void> {
+  // TODO: Support agent installation for gemini/copilot/antigravity.
+  if (tool !== "claude" && tool !== "codex") {
     return;
   }
 
@@ -77,19 +105,21 @@ async function installAgents(root: string, tool: ToolTarget): Promise<void> {
     return;
   }
 
-  if (tool === "claude-code") {
-    await installAgentsClaudeCode(root, agentsDir, mdFiles);
+  if (tool === "claude") {
+    await installAgentsClaude(root, agentsDir, mdFiles, scope, homeDir);
   } else {
-    await installAgentsCodex(root, agentsDir, mdFiles);
+    await installAgentsCodex(root, agentsDir, mdFiles, scope, homeDir);
   }
 }
 
-async function installAgentsClaudeCode(
+async function installAgentsClaude(
   root: string,
   agentsDir: string,
   mdFiles: string[],
+  scope: InstallScope,
+  homeDir?: string,
 ): Promise<void> {
-  const targetBase = join(root, AGENT_INSTALL_PATHS["claude-code"]);
+  const targetBase = resolveScopedInstallPath(root, AGENT_INSTALL_PATHS.claude, scope, homeDir);
   await mkdir(targetBase, { recursive: true });
 
   for (const fileName of mdFiles) {
@@ -105,8 +135,10 @@ async function installAgentsCodex(
   root: string,
   agentsDir: string,
   mdFiles: string[],
+  scope: InstallScope,
+  homeDir?: string,
 ): Promise<void> {
-  const targetBase = join(root, AGENT_INSTALL_PATHS.codex);
+  const targetBase = resolveScopedInstallPath(root, AGENT_INSTALL_PATHS.codex, scope, homeDir);
   await mkdir(targetBase, { recursive: true });
 
   const configEntries: Record<string, { description: string; config_file: string }> = {};
@@ -146,8 +178,9 @@ async function installAgentsCodex(
   }
 
   // Write/update .codex/config.toml with agents section
-  const codexConfigPath = join(root, ".codex", "config.toml");
-  await mkdir(join(root, ".codex"), { recursive: true });
+  const installBase = resolveInstallBase(root, scope, homeDir);
+  const codexConfigPath = join(installBase, ".codex", "config.toml");
+  await mkdir(join(installBase, ".codex"), { recursive: true });
 
   let existingContent = "";
   try {
@@ -195,6 +228,10 @@ async function installAgentsCodex(
 
   await Bun.write(codexConfigPath, finalContent);
   console.log(`  Updated ${relative(root, codexConfigPath)}`);
+}
+
+function unique<T>(values: T[]): T[] {
+  return Array.from(new Set(values));
 }
 
 async function forceSymlink(target: string, linkPath: string): Promise<void> {

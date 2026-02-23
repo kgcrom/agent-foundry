@@ -14,7 +14,7 @@
 - `bun run list` lists all registered skills and agents.
 - `bun run validate <name>` validates one skill or agent.
 - `bun run validate --all` validates the full repository.
-- `bun run install-skills --tool <claude-code|codex|gemini|copilot|antigravity>` installs converted/symlinked outputs.
+- `bun run install-skills` runs interactive TUI installation for selected kinds/scopes/tools (`claude|codex|gemini|copilot|antigravity`); non-interactive environments are not supported.
 - `bun test` runs the test suite.
 - `bun run typecheck` runs `tsc --noEmit`.
 - `bun run check` runs Biome lint/format checks.

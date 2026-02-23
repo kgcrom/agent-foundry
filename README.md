@@ -43,11 +43,18 @@ bun run validate --all
 
 ### install
 
-Install skills and agents to tool-specific locations in your project.
+Install skills and agents with an interactive TUI.
 
 ```bash
-bun run install-skills --tool <claude-code|codex|gemini|copilot|antigravity>
+bun run install-skills
 ```
+
+`install-skills` requires an interactive TTY. Non-interactive environments (for example CI, redirected stdin/stdout) are not supported.
+
+The install TUI lets you choose:
+- kind: `skill`, `agent`
+- scope: `project`, `user`
+- tool: `claude`, `codex`, `gemini`, `copilot`, `antigravity`
 
 ### eval
 
