@@ -1,0 +1,24 @@
+{
+  "cli_version": "0.4.5",
+  "checkpoint_id": "f2e659c50d2b",
+  "session_id": "3b16dbbc-7ab5-4f9b-9c7f-400bbcd327fa",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-25T15:45:52.32127Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs/install-testing-checklist.md",
+    "tests/commands/install.test.ts"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "e3694c806dc2",
+  "initial_attribution": {
+    "calculated_at": "2026-02-25T15:45:52.3149Z",
+    "agent_lines": 0,
+    "human_added": 698,
+    "human_modified": 46,
+    "human_removed": 0,
+    "total_committed": 698,
+    "agent_percentage": 0
+  }
+}

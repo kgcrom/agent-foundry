@@ -1,0 +1,20 @@
+{
+  "cli_version": "0.4.5",
+  "checkpoint_id": "f2e659c50d2b",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs/install-testing-checklist.md",
+    "tests/commands/install.test.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f2/e659c50d2b/0/metadata.json",
+      "transcript": "/f2/e659c50d2b/0/full.jsonl",
+      "context": "",
+      "content_hash": "/f2/e659c50d2b/0/content_hash.txt",
+      "prompt": ""
+    }
+  ]
+}
