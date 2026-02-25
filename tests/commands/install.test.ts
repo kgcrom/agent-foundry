@@ -261,6 +261,194 @@ describe("commands/install", () => {
     });
   });
 
+  test("re-running install keeps existing symlinks intact", async () => {
+    await withTempRepo(async (root) => {
+      await writeSkill(
+        root,
+        "commit",
+        { name: "commit", description: "Create commits", license: "MIT" },
+        "# Commit",
+      );
+
+      const selection: InstallSelection = {
+        kinds: ["skill"],
+        scopes: ["project"],
+        tools: ["claude"],
+      };
+
+      await runInstall(root, selection);
+      await runInstall(root, selection);
+
+      const link = join(root, SKILL_INSTALL_PATHS.claude, "commit");
+      expect(await exists(link)).toBe(true);
+      expect(await readlink(link)).toEndWith("/skills/commit");
+    });
+  });
+
+  test("updates symlink when target path changes", async () => {
+    await withTempRepo(async (root) => {
+      await writeSkill(
+        root,
+        "commit",
+        { name: "commit", description: "Create commits", license: "MIT" },
+        "# Commit",
+      );
+
+      await runInstall(root, {
+        kinds: ["skill"],
+        scopes: ["project"],
+        tools: ["claude"],
+      });
+
+      const link = join(root, SKILL_INSTALL_PATHS.claude, "commit");
+      const originalTarget = await readlink(link);
+      expect(originalTarget).toEndWith("/skills/commit");
+
+      // Simulate target change by manually pointing symlink elsewhere
+      const { unlink, symlink } = await import("node:fs/promises");
+      await unlink(link);
+      await symlink("/tmp/fake-target", link);
+      expect(await readlink(link)).toBe("/tmp/fake-target");
+
+      // Re-install should update to correct target
+      await runInstall(root, {
+        kinds: ["skill"],
+        scopes: ["project"],
+        tools: ["claude"],
+      });
+
+      expect(await readlink(link)).toBe(originalTarget);
+    });
+  });
+
+  test("creates codex config.toml from scratch when none exists", async () => {
+    await withTempRepo(async (root) => {
+      await writeAgent(
+        root,
+        "code-reviewer",
+        { name: "code-reviewer", description: "Reviews code", model: "sonnet" },
+        "# Reviewer",
+      );
+
+      await runInstall(root, {
+        kinds: ["agent"],
+        scopes: ["project"],
+        tools: ["codex"],
+      });
+
+      const configPath = join(root, ".codex", "config.toml");
+      expect(await exists(configPath)).toBe(true);
+
+      const content = await readFile(configPath);
+      expect(content).toContain("[agents.code-reviewer]");
+      expect(content).toContain('description = "Reviews code"');
+      expect(content).toContain('config_file = "agents/code-reviewer.toml"');
+    });
+  });
+
+  test("escapes double quotes in agent description for codex config.toml", async () => {
+    await withTempRepo(async (root) => {
+      await writeAgent(
+        root,
+        "quoter",
+        { name: "quoter", description: 'Says "hello" world', model: "sonnet" },
+        "# Quoter",
+      );
+
+      await runInstall(root, {
+        kinds: ["agent"],
+        scopes: ["project"],
+        tools: ["codex"],
+      });
+
+      const config = await readFile(join(root, ".codex", "config.toml"));
+      expect(config).toContain("[agents.quoter]");
+      expect(config).toContain('description = "Says \\"hello\\" world"');
+    });
+  });
+
+  test("escapes triple quotes in agent body for codex TOML", async () => {
+    await withTempRepo(async (root) => {
+      await writeAgent(
+        root,
+        "quoter",
+        { name: "quoter", description: "Test agent", model: "sonnet" },
+        'Use """triple""" quotes here',
+      );
+
+      await runInstall(root, {
+        kinds: ["agent"],
+        scopes: ["project"],
+        tools: ["codex"],
+      });
+
+      const toml = await readFile(join(root, ".codex", "agents", "quoter.toml"));
+      // Triple quotes inside the body must not form an unescaped """ that closes the TOML string
+      expect(toml).toContain("developer_instructions");
+      expect(toml).not.toMatch(/"""\s*"""\s*"""/);
+    });
+  });
+
+  test("installs both skills and agents in a single run", async () => {
+    await withTempRepo(async (root) => {
+      await writeSkill(
+        root,
+        "commit",
+        { name: "commit", description: "Create commits", license: "MIT" },
+        "# Commit",
+      );
+      await writeAgent(
+        root,
+        "code-reviewer",
+        { name: "code-reviewer", description: "Reviews code", model: "sonnet" },
+        "# Reviewer",
+      );
+
+      await runInstall(root, {
+        kinds: ["skill", "agent"],
+        scopes: ["project"],
+        tools: ["claude"],
+      });
+
+      expect(await exists(join(root, SKILL_INSTALL_PATHS.claude, "commit"))).toBe(true);
+      expect(await exists(join(root, AGENT_INSTALL_PATHS.claude, "code-reviewer.md"))).toBe(true);
+    });
+  });
+
+  test("deduplicates repeated tool selections", async () => {
+    await withTempRepo(async (root) => {
+      await writeSkill(
+        root,
+        "commit",
+        { name: "commit", description: "Create commits", license: "MIT" },
+        "# Commit",
+      );
+
+      const result = await runInstall(root, {
+        kinds: ["skill", "skill"],
+        scopes: ["project", "project"],
+        tools: ["claude", "claude"],
+      });
+
+      // Should only log one install line, not duplicates
+      const installLines = result.logs.filter((l) => l.includes('Skill "commit"'));
+      expect(installLines).toHaveLength(1);
+    });
+  });
+
+  test("prints skip message when agents directory is missing", async () => {
+    await withTempRepo(async (root) => {
+      const result = await runInstall(root, {
+        kinds: ["agent"],
+        scopes: ["project"],
+        tools: ["claude"],
+      });
+      expect(result.logs.join("\n")).toContain(
+        "No agents/ directory found. Skipping agent installation.",
+      );
+    });
+  });
+
   test("rejects install for codex when agent markdown cannot be parsed", async () => {
     await withTempRepo(async (root) => {
       await writeText(join(root, "agents", "broken.md"), "no frontmatter");
